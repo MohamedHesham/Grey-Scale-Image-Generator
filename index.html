@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Canvas2D</title>
+    <style media="screen">
+      body {
+        text-align: center;
+      }
+      input {
+        margin-bottom: 5%;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <input type="file" id="file" />
+    </div>
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <script type="text/javascript">
+      var ctx = document.querySelector("#canvas").getContext('2d');
+  
+      //adding file
+      function handleFileSelect(evt) {
+        var file = evt.target.files[0];
+
+
+
+        var reader = new FileReader();
+        reader.onload = function(fileObject) {
+          var data = fileObject.target.result;
+
+          // Create an image object
+          var image = new Image();
+          image.onload = function() {
+
+            window.imageSrc = this;
+            ctx.drawImage(image, 0, 0);
+            greyScale();
+          }
+
+          // Set image data to background image.
+          image.src = data;
+          console.log(fileObject.target.result);
+        };
+        reader.readAsDataURL(file)
+      }
+      // function to make pixel grey scale
+      var makePixelGreyScale = function(r, g, b, a) {
+        var y = (0.3 * r) + (0.59 * g) + (0.11 * b);
+        return {r: y, g: y, b: y, a: y};
+      }
+
+      // function to make picture grey scale
+      function greyScale() {
+        var imageData = ctx.getImageData(0, 0, 800, 800);
+        var numOfPixels = imageData.data.length / 4;
+        // loop through every pixel
+        for(var i = 0; i < numOfPixels; i++) {
+          var r = imageData.data[i * 4 + 0];
+          var g = imageData.data[i * 4 + 1];
+          var b = imageData.data[i * 4 + 2];
+          var a = imageData.data[i * 4 + 3];
+          pixel = makePixelGreyScale(r, g, b, a);
+          imageData.data[i * 4 + 0] = pixel.r;
+          imageData.data[i * 4 + 1] = pixel.g;
+          imageData.data[i * 4 + 2] = pixel.b;
+          imageData.data[i * 4 + 3] = pixel.a;
+        }
+        ctx.putImageData(imageData, 0, 0);
+      }
+      document.getElementById('file').addEventListener('change', handleFileSelect, false);
+    </script>
+  </body>
+</html>
